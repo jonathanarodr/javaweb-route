@@ -10,6 +10,6 @@
         <br>
         <input type="text" name="param" id="param" /><button onclick="location.href='param/' + document.querySelector('input').value">go param</button>
         <br><br>
-        <a href="index">index</a>
+        <a href="../">index</a>
     </body>
 </html>
