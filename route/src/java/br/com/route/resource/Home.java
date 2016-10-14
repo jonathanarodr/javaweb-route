@@ -7,6 +7,7 @@ import br.com.route.annotation.Controller;
 import br.com.route.annotation.RequestMapping;
 import br.com.route.type.ResponseType;
 import br.com.route.annotation.Response;
+import java.util.Map;
 
 @Controller("/home")
 @RequestMapping("/WEB-INF/home.jsp")
@@ -14,7 +15,7 @@ import br.com.route.annotation.Response;
 public class Home implements IRoute {
 
     @Override
-    public void execute(HttpServletRequest request, HttpServletResponse response) {
+    public void execute(HttpServletRequest request, HttpServletResponse response, Map<String,String> paramMap) {
         System.out.println("Executando controller /home...");
     }
     

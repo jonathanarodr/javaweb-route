@@ -5,6 +5,8 @@ import br.com.route.type.ResponseType;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,12 +19,13 @@ import org.reflections.Reflections;
 public class Route extends HttpServlet {
 
     private final String packageRoute = "br.com.route.resource";
+    private Map<String,String> paramMap = new HashMap<String,String>();
     
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        try {            
+        try {
             boolean isValidURI = false;
 
             //captura classes com anotação @Controller
@@ -43,7 +46,7 @@ public class Route extends HttpServlet {
                     //cria instância e executa requisição
                     Class<?> classref = Class.forName(controller.getName());
                     IRoute route = (IRoute) classref.newInstance();
-                    route.execute(request, response);
+                    route.execute(request, response, this.paramMap);
                     
                     //configura response
                     switch (responseType) {
@@ -77,7 +80,21 @@ public class Route extends HttpServlet {
             return false;
         }
         
-        for (int i=0; i<requestSplit.length; i++) {            
+        //captura parâmetros da requisição
+        String key;
+        String value;
+        for (int i=0; i<requestSplit.length; i++) {
+            key = annotationSplit[i];
+            value = requestSplit[i];
+            
+            if ((key.startsWith("{")) && (key.endsWith("}"))) {
+                paramMap.put(key.replace("{", "").replace("}", ""), this.getParamURIDecode(value));
+                annotationSplit[i] = "*";
+            }
+        }
+        
+        //valida mapeamento da requisição
+        for (int i=0; i<requestSplit.length; i++) {
             if ((!annotationSplit[i].equals(requestSplit[i])) && (!annotationSplit[i].equals("*"))) {
                 valid = false;
                 break;
@@ -89,19 +106,12 @@ public class Route extends HttpServlet {
         return valid;
     }
     
-    public static String getParamURIDecode(String uri) {
-        try {
-            String[] values = uri.split("/");
-            return URLDecoder.decode(values[values.length-1], "UTF-8");
+    private static String getParamURIDecode(String paramValue) {
+        try {            
+            return URLDecoder.decode(paramValue, "UTF-8");
         } catch (UnsupportedEncodingException ex) {
             return null;
         }
-    }
-    
-    @Deprecated
-    public static String getParamURI(String uri) {
-        String[] values = uri.split("/");
-        return values[values.length-1];
     }
     
 }
