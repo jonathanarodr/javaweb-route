@@ -4,6 +4,6 @@ public enum ResponseType {
 
     DISPATCHER,
     REDIRECT,
-    JSON;
+    ERROR;
     
 }
